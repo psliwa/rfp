@@ -1,0 +1,119 @@
+<?php
+
+namespace Rfp;
+
+final class F
+{
+    public static function compose($f = null, $g = null){
+        return new Functor(call_user_func_array('igorw\\compose', func_get_args()));
+    }
+
+    public static function pipe($f = null, $g = null){
+        return new Functor(call_user_func_array('igorw\\pipeline', func_get_args()));
+    }
+
+    public static function curry($func, $arity, $args = array()) {
+        if(count($args) >= $arity) {
+            return call_user_func_array($func, $args);
+        } else {
+            return new Functor(function() use($func, $arity, $args){
+                return call_user_func_array(array('Rfp\\F', 'curry'), array($func, $arity, array_merge($args, func_get_args())));
+            });
+        }
+    }
+
+    private static function _prop($name, $object) {
+        if(is_object($object)) {
+            $getterPrefixes = array('get', 'is', 'has', '');
+
+            foreach($getterPrefixes as $prefix) {
+                $getter = $prefix.$name;
+
+                if(is_callable(array($object, $name))) {
+                    return $object->$getter();
+                }
+            }
+
+            if(isset($object->$name)) {
+                return $object->$name;
+            }
+        } else if(is_array($object) || $object instanceof \ArrayAccess) {
+            return isset($object[$name]) ? $object[$name] : null;
+        }
+
+        return null;
+    }
+
+    public static function prop($name = null, $object = null) {
+        return self::curry(array('Rfp\\F', '_prop'), 2, func_get_args());
+    }
+
+    private static function _eq($value1, $value2) {
+        return $value1 == $value2;
+    }
+
+    public static function eq($value1 = null, $value2 = null) {
+        return self::curry(array('Rfp\\F', '_eq'), 2, func_get_args());
+    }
+
+    private static function _unary($func) {
+        return function($arg) use($func) {
+            return call_user_func($func, $arg);
+        };
+    }
+
+    public static function unary($func = null) {
+        return self::curry(array('Rfp\\F', '_unary'), 1, func_get_args());
+    }
+
+    private static function _apply($func, array $args) {
+        return call_user_func_array($func, $args);
+    }
+
+    public static function apply($func = null, array $args = null) {
+        return self::curry(array('Rfp\\F', '_apply'), 2, func_get_args());
+    }
+
+    private static function _add($a, $b) {
+        return $a + $b;
+    }
+
+    public static function add($a = null, $b = null) {
+        return self::curry(array('Rfp\\F', '_add'), 2, func_get_args());
+    }
+
+    private static function _multiply($a, $b) {
+        return $a * $b;
+    }
+
+    public static function multiply($a = null, $b = null) {
+        return self::curry(array('Rfp\\F', '_multiply'), 2, func_get_args());
+    }
+
+    private static function _converge($then, $func1, $func2)
+    {
+        return new Functor(function() use($then, $func1, $func2){
+            $args = func_get_args();
+            return $then(call_user_func_array($func1, $args), call_user_func_array($func2, $args));
+        });
+    }
+
+    public static function converge()
+    {
+        return self::curry(array('Rfp\\F', '_converge'), 3, func_get_args());
+    }
+
+    private static function _zip($func, $collection) {
+        $args = func_get_args();
+        $func = array_shift($args);
+        $args[] = $func;
+
+        return call_user_func_array('Functional\\zip', $args);
+    }
+
+    public static function zip($func = null, $collection = null) {
+        return self::curry(array('Rfp\\F', '_zip'), 2, func_get_args());
+    }
+
+%functions%
+} 

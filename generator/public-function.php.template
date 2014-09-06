@@ -1,0 +1,3 @@
+    public static function %name%(%parameters%) {
+        return self::curry(array('Rfp\\F', '_%name%'), %arity%, func_get_args());
+    }

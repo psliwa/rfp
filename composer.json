@@ -1,0 +1,21 @@
+{
+    "name": "ps/rfp",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Piotr Sliwa",
+            "email": "peter.pl7@gmail.com"
+        }
+    ],
+    "autoload": {
+        "psr-0": {
+            "Rfp": "src/"
+        }
+    },
+    "require": {
+        "php": ">=5.3.3",
+        "lstrojny/functional-php": "dev-master",
+        "igorw/compose": "dev-master"
+    }
+}
