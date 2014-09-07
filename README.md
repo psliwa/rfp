@@ -1,4 +1,4 @@
-# Rfc - Real functional php
+# Rfp - Real functional php
 
 This is working prototype of library that supports functional programming. It is inspired by [ramda][2] and [this talk][3], 
 under hood uses [functional php][1] library.
@@ -11,13 +11,29 @@ under hood uses [functional php][1] library.
 
 # Differences
 
-Rfc is based on [functional php][1], there are **few very important** changes:
+Rfp is based on [functional php][1], there are **few very important** changes:
 
 * there are `F::compose` and `F::pipe` functions. `F::pipe` does the same as `F::compose` function, but with reversed function
 order, so it is more readable.
 * making `$collection` last function argument
 * all functions support `autocurring`
 * there are more primitives
+
+`F::compose` and `F::pipe` allow to functions chaining. There is a simple example:
+
+```php
+    $composedFunc = F::compose($func1, $func2);
+    //is the same as
+    $composedFunc = function($x) use($func1, $func2){
+        return $func1($func2($x));
+    };
+    
+    $pipedFunc = F::compose($func1, $func2);
+    //is the same as
+    $pipedFunc = function($x) use($func1, $func2){
+        return $func2($func1($x));//unlike "compose", $func1 is invoked as first
+    };
+``` 
 
 `Curry` is an operation on function that allows you to create function with smaller number of arguments.
 
@@ -95,10 +111,10 @@ $cart = array(
 
 //using functional php
 
-$value = Functional\sum(
-    Functional\zip(
-        Functional\pluck($cart, 'price'),
-        Functional\pluck($cart, 'quantity'),
+$value = F\sum(
+    F\zip(
+        F\pluck($cart, 'price'),
+        F\pluck($cart, 'quantity'),
         function($price, $quantity) {
             return $price * $quantity;
         }
