@@ -28,7 +28,7 @@ order, so it is more readable.
         return $func1($func2($x));
     };
     
-    $pipedFunc = F::compose($func1, $func2);
+    $pipedFunc = F::pipe($func1, $func2);
     //is the same as
     $pipedFunc = function($x) use($func1, $func2){
         return $func2($func1($x));//unlike "compose", $func1 is invoked as first
